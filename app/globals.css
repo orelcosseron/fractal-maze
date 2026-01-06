@@ -1,0 +1,89 @@
+@import "tailwindcss";
+
+:root {
+  --background: #c0c0c0;
+  --foreground: black;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: "Digital-7 Mono", Arial, Helvetica, sans-serif;
+  margin: 15px;
+}
+
+#level_select {
+  background-color: black;
+  color: white;
+  font-size: 18px;
+}
+
+#reset_button:enabled {
+  background-color: black;
+  color: white;
+  margin-left: 50%;
+  margin-right: 50%
+}
+
+#reset_button:disabled {
+  background-color: var(--background);
+  color: var(--background);
+  border: 0px
+}
+
+#hud {
+  background-color: black;
+  color: white;
+  padding: 10px;
+  font-size: 16px
+}
+
+.maze_row {
+  display: flex;
+  flex-direction: row;
+}
+
+.tile_row {
+  display: flex;
+  flex-direction: row;
+}
+
+@keyframes trophy_1 {
+  from {
+    rotate: 0deg;
+  }
+
+  to {
+    rotate: 45deg;
+  }
+}
+
+@keyframes trophy_2 {
+  from {
+    rotate: 45deg;
+  }
+
+  to {
+    rotate: 90deg;
+  }
+}
+
+@keyframes trophy_3 {
+  from {
+    rotate: 90deg;
+  }
+
+  to {
+    rotate: 135deg;
+  }
+}
+
+@keyframes trophy_4 {
+  from {
+    rotate: 135deg;
+  }
+
+  to {
+    rotate: 180deg;
+  }
+}
