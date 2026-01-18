@@ -81,10 +81,21 @@ export default function Tile({ row, col }: { row: number, col: number }) {
         const linkE = <div style={{ background: "linear-gradient(to right, " + mazeData.path_color + ", rgb(from " + mazeData.path_color + " r g b / 0))", width: mazeData.tile_size / 2, height: mazeData.tile_size / 2, position: "absolute", marginLeft: 3 / 4 * mazeData.tile_size, marginTop: mazeData.tile_size / 4, zIndex: 2 }}></div>
         const linkN = <div style={{ background: "linear-gradient(to top, " + mazeData.path_color + ", rgb(from " + mazeData.path_color + " r g b / 0))", width: mazeData.tile_size / 2, height: mazeData.tile_size / 2, position: "absolute", marginLeft: mazeData.tile_size / 4, marginTop: -mazeData.tile_size / 4, zIndex: 2 }}></div>
 
-        const exitW = <div style={{ background: mazeData.path_color, width: mazeData.tile_size / 2, height: mazeData.tile_size / 2, position: "absolute", marginLeft: -mazeData.tile_size / 4, marginTop: mazeData.tile_size / 4, zIndex: 2 }}></div>
-        const exitS = <div style={{ background: mazeData.path_color, width: mazeData.tile_size / 2, height: mazeData.tile_size / 2, position: "absolute", marginLeft: mazeData.tile_size / 4, marginTop: 3 / 4 * mazeData.tile_size, zIndex: 2 }}></div>
-        const exitE = <div style={{ background: mazeData.path_color, width: mazeData.tile_size / 2, height: mazeData.tile_size / 2, position: "absolute", marginLeft: 3 / 4 * mazeData.tile_size, marginTop: mazeData.tile_size / 4, zIndex: 2 }}></div>
-        const exitN = <div style={{ background: mazeData.path_color, width: mazeData.tile_size / 2, height: mazeData.tile_size / 2, position: "absolute", marginLeft: mazeData.tile_size / 4, marginTop: -mazeData.tile_size / 4, zIndex: 2 }}></div>
+        const pathExitW = <div key="pathExit" style={{ background: mazeData.path_color, width: mazeData.tile_size / 2, height: mazeData.tile_size / 2, position: "absolute", marginLeft: -mazeData.tile_size / 4, marginTop: mazeData.tile_size / 4, zIndex: 2 }}></div>
+        const pathExitS = <div key="pathExit" style={{ background: mazeData.path_color, width: mazeData.tile_size / 2, height: mazeData.tile_size / 2, position: "absolute", marginLeft: mazeData.tile_size / 4, marginTop: 3 / 4 * mazeData.tile_size, zIndex: 2 }}></div>
+        const pathExitE = <div key="pathExit" style={{ background: mazeData.path_color, width: mazeData.tile_size / 2, height: mazeData.tile_size / 2, position: "absolute", marginLeft: 3 / 4 * mazeData.tile_size, marginTop: mazeData.tile_size / 4, zIndex: 2 }}></div>
+        const pathExitN = <div key="pathExit" style={{ background: mazeData.path_color, width: mazeData.tile_size / 2, height: mazeData.tile_size / 2, position: "absolute", marginLeft: mazeData.tile_size / 4, marginTop: -mazeData.tile_size / 4, zIndex: 2 }}></div>
+
+        const backgroundExitW = <div key="backgroundExit" style={{ background: mazeData.background_color, width: mazeData.tile_size / 4, height: mazeData.tile_size, position: "absolute", marginLeft: -mazeData.tile_size / 4, marginTop: 0, zIndex:2}}></div>
+        const backgroundExitS = <div key="backgroundExit" style={{ background: mazeData.background_color, width: mazeData.tile_size, height: mazeData.tile_size / 4, position: "absolute", marginLeft: 0, marginTop: mazeData.tile_size, zIndex:2}}></div>
+        const backgroundExitE = <div key="backgroundExit" style={{ background: mazeData.background_color, width: mazeData.tile_size / 4, height: mazeData.tile_size, position: "absolute", marginLeft: mazeData.tile_size, marginTop: 0, zIndex:2}}></div>
+        const backgroundExitN = <div key="backgroundExit" style={{ background: mazeData.background_color, width: mazeData.tile_size, height: mazeData.tile_size / 4, position: "absolute", marginLeft: 0, marginTop: -mazeData.tile_size / 4, zIndex:2}}></div>
+
+        const exitW = [backgroundExitW, pathExitW]
+        const exitS = [backgroundExitS, pathExitS]
+        const exitE = [backgroundExitE, pathExitE]
+        const exitN = [backgroundExitN, pathExitN]
+
 
         const central_path = <div style={{ background: mazeData.path_color, width: mazeData.tile_size / 2, height: mazeData.tile_size / 2, position: "absolute", marginLeft: mazeData.tile_size / 4, marginTop: mazeData.tile_size / 4 }}></div>
 
