@@ -19,20 +19,21 @@ export default function Maze({ name }: { name: string }) {
     if (mazeData) {
         return (
             <MazeContext value={mazeData}>
-                <div className="maze" style={{width: mazeData.tile_size * (mazeData.rows[0].length / 2 + 1 / 2), height: mazeData.tile_size * (mazeData.rows.length + 1 / 2)}}>
-                    <Rim />
+                <div className="maze" style={{ width: mazeData.tile_size * (mazeData.rows[0].length / 2 + 1 / 2), height: mazeData.tile_size * (mazeData.rows.length + 1 / 2) }}>
+                    <Rim>
 
-                    {Object.keys(mazeData.blocks).map(name => <Block key={name} name={name} />)}
+                        {Object.keys(mazeData.blocks).map(name => <Block key={name} name={name} />)}
 
-                    <Player />
+                        <Player />
 
-                    {mazeData.trophies.map((_, id) => <Trophy key={id} id={id} />)}
+                        {mazeData.trophies.map((_, id) => <Trophy key={id} id={id} />)}
 
-                    {mazeData.rows.map((row, i) =>
-                        row.match(/.{2}/g)?.map((_, j) =>
-                            <Tile key={i.toString() + "." + j.toString()} row={i} col={j} />
-                        )
-                    )}
+                        {mazeData.rows.map((row, i) =>
+                            row.match(/.{2}/g)?.map((_, j) =>
+                                <Tile key={i.toString() + "." + j.toString()} row={i} col={j} />
+                            )
+                        )}
+                    </Rim>
                 </div >
             </MazeContext >
         )
