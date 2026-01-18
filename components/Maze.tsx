@@ -19,7 +19,7 @@ export default function Maze({ name }: { name: string }) {
     if (mazeData) {
         return (
             <MazeContext value={mazeData}>
-                <div className="maze">
+                <div className="maze" style={{width: mazeData.tile_size * (mazeData.rows[0].length / 2 + 1 / 2), height: mazeData.tile_size * (mazeData.rows.length + 1 / 2)}}>
                     <Rim />
 
                     {Object.keys(mazeData.blocks).map(name => <Block key={name} name={name} />)}

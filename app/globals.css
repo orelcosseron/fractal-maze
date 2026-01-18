@@ -38,6 +38,11 @@ body {
   font-size: 16px
 }
 
+.maze {
+  overflow: hidden;
+  position: relative;
+}
+
 .maze_row {
   display: flex;
   flex-direction: row;
