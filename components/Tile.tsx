@@ -8,7 +8,7 @@ export default function Tile({ row, col }: { row: number, col: number }) {
 
     if (mazeData && sessionContext) {
 
-        const [isActive, setIsActive] = useState(false);
+        const [isLeaving, setIsLeaving] = useState(false);
         const [previousPos, setPreviousPos] = useState({ row: 0, col: 0 });
 
         const [showLineW, setShowLineW] = useState(false);
@@ -16,11 +16,11 @@ export default function Tile({ row, col }: { row: number, col: number }) {
         const [showLineE, setShowLineE] = useState(false);
         const [showLineN, setShowLineN] = useState(false);
 
-        const [oldStack, setOldStack] = useState("0");
+        const [stack, setStack] = useState("0");
         const [lineCache, setLineCache] = useState<NodeJS.Dict<{ w: boolean, s: boolean, e: boolean, n: boolean }>>({});
 
         useEffect(() => {
-            setOldStack("0")
+            setStack("0")
             setLineCache({ "0": { w: false, s: false, e: false, n: false } })
         }, [mazeData])
 
@@ -86,16 +86,15 @@ export default function Tile({ row, col }: { row: number, col: number }) {
         const pathExitE = <div key="pathExit" style={{ background: mazeData.path_color, width: mazeData.tile_size / 2, height: mazeData.tile_size / 2, position: "absolute", marginLeft: 3 / 4 * mazeData.tile_size, marginTop: mazeData.tile_size / 4, zIndex: 2 }}></div>
         const pathExitN = <div key="pathExit" style={{ background: mazeData.path_color, width: mazeData.tile_size / 2, height: mazeData.tile_size / 2, position: "absolute", marginLeft: mazeData.tile_size / 4, marginTop: -mazeData.tile_size / 4, zIndex: 2 }}></div>
 
-        const backgroundExitW = <div key="backgroundExit" style={{ background: mazeData.background_color, width: mazeData.tile_size / 4, height: mazeData.tile_size, position: "absolute", marginLeft: -mazeData.tile_size / 4, marginTop: 0, zIndex:2}}></div>
-        const backgroundExitS = <div key="backgroundExit" style={{ background: mazeData.background_color, width: mazeData.tile_size, height: mazeData.tile_size / 4, position: "absolute", marginLeft: 0, marginTop: mazeData.tile_size, zIndex:2}}></div>
-        const backgroundExitE = <div key="backgroundExit" style={{ background: mazeData.background_color, width: mazeData.tile_size / 4, height: mazeData.tile_size, position: "absolute", marginLeft: mazeData.tile_size, marginTop: 0, zIndex:2}}></div>
-        const backgroundExitN = <div key="backgroundExit" style={{ background: mazeData.background_color, width: mazeData.tile_size, height: mazeData.tile_size / 4, position: "absolute", marginLeft: 0, marginTop: -mazeData.tile_size / 4, zIndex:2}}></div>
+        const backgroundExitW = <div key="backgroundExit" style={{ background: mazeData.background_color, width: mazeData.tile_size / 4, height: mazeData.tile_size, position: "absolute", marginLeft: -mazeData.tile_size / 4, marginTop: 0, zIndex: 2 }}></div>
+        const backgroundExitS = <div key="backgroundExit" style={{ background: mazeData.background_color, width: mazeData.tile_size, height: mazeData.tile_size / 4, position: "absolute", marginLeft: 0, marginTop: mazeData.tile_size, zIndex: 2 }}></div>
+        const backgroundExitE = <div key="backgroundExit" style={{ background: mazeData.background_color, width: mazeData.tile_size / 4, height: mazeData.tile_size, position: "absolute", marginLeft: mazeData.tile_size, marginTop: 0, zIndex: 2 }}></div>
+        const backgroundExitN = <div key="backgroundExit" style={{ background: mazeData.background_color, width: mazeData.tile_size, height: mazeData.tile_size / 4, position: "absolute", marginLeft: 0, marginTop: -mazeData.tile_size / 4, zIndex: 2 }}></div>
 
         const exitW = [backgroundExitW, pathExitW]
         const exitS = [backgroundExitS, pathExitS]
         const exitE = [backgroundExitE, pathExitE]
         const exitN = [backgroundExitN, pathExitN]
-
 
         const central_path = <div style={{ background: mazeData.path_color, width: mazeData.tile_size / 2, height: mazeData.tile_size / 2, position: "absolute", marginLeft: mazeData.tile_size / 4, marginTop: mazeData.tile_size / 4 }}></div>
 
@@ -133,167 +132,53 @@ export default function Tile({ row, col }: { row: number, col: number }) {
         const defaultPathN = (type & 8) != 0 ? pathN : (teleporters.signature & 8) != 0 ? teleporterN : (links & 8) != 0 ? linkN : (exits & 8) != 0 ? exitN : null
 
         useEffect(() => {
-            if (isActive || (sessionContext.playerPos.row == row && sessionContext.playerPos.col == col)) {
-                if (sessionContext.playerPos.row == row && sessionContext.playerPos.col == col && isTrophy && sessionContext.blockStack.length == 1) {
-                    sessionContext.setIsWin(true)
-                    return
-                }
-                const playerRow = isActive ? sessionContext.playerPos.row : previousPos.row
-                const playerCol = isActive ? sessionContext.playerPos.col : previousPos.col
-                if (playerRow - row == 0 && playerCol - col == -((teleporters.reach[1] && (teleporters.signature & 1) != 0) ? teleporters.reach[1] : 1)) {
+            if (isLeaving || (sessionContext.playerPos.row == row && sessionContext.playerPos.col == col)) {
+                const playerRow = isLeaving ? sessionContext.playerPos.row : previousPos.row
+                const playerCol = isLeaving ? sessionContext.playerPos.col : previousPos.col
+                if (playerRow - row == 0 && playerCol - col < 0) {
                     setShowLineW((b) => !b)
                 }
-                else if (playerRow - row == ((teleporters.reach[2] && (teleporters.signature & 2) != 0) ? teleporters.reach[2] : 1) && playerCol - col == 0) {
+                else if (playerRow - row > 0 && playerCol - col == 0) {
                     setShowLineS((b) => !b)
                 }
-                else if (playerRow - row == 0 && playerCol - col == ((teleporters.reach[4] && (teleporters.signature & 4) != 0) ? teleporters.reach[4] : 1)) {
+                else if (playerRow - row == 0 && playerCol - col > 0) {
                     setShowLineE((b) => !b)
                 }
-                else if (playerRow - row == -((teleporters.reach[8] && (teleporters.signature & 8) != 0) ? teleporters.reach[8] : 1) && playerCol - col == 0) {
+                else if (playerRow - row < 0 && playerCol - col == 0) {
                     setShowLineN((b) => !b)
-                }
-                else if (isActive && mazeData.links[playerRow] && mazeData.links[playerRow][playerCol]) {
-                    for (const { exit } of mazeData.links[playerRow][playerCol]) {
-                        if (mazeData.exits[exit]) {
-                            const exitRow = mazeData.exits[exit].row
-                            const exitCol = mazeData.exits[exit].col
-                            if (exitRow == row && exitCol == col) {
-                                if (mazeData.exits[exit].orientation == 1) {
-                                    setShowLineW((b) => !b)
-                                    break
-                                }
-                                else if (mazeData.exits[exit].orientation == 2) {
-                                    setShowLineS((b) => !b)
-                                    break
-                                }
-                                else if (mazeData.exits[exit].orientation == 4) {
-                                    setShowLineE((b) => !b)
-                                    break
-                                }
-                                else if (mazeData.exits[exit].orientation == 8) {
-                                    setShowLineN((b) => !b)
-                                    break
-                                }
-                            }
-                        }
-                    }
-                }
-                if (isActive && mazeData.links[row] && mazeData.links[row][col]) {
-                    for (const { exit } of mazeData.links[row][col]) {
-                        if (mazeData.exits[exit]) {
-                            const exitRow = mazeData.exits[exit].row
-                            const exitCol = mazeData.exits[exit].col
-                            if (exitRow == playerRow && exitCol == playerCol) {
-                                if (mazeData.exits[exit].orientation == 4) {
-                                    setShowLineW((b) => !b)
-                                    break
-                                }
-                                else if (mazeData.exits[exit].orientation == 8) {
-                                    setShowLineS((b) => !b)
-                                    break
-                                }
-                                else if (mazeData.exits[exit].orientation == 1) {
-                                    setShowLineE((b) => !b)
-                                    break
-                                }
-                                else if (mazeData.exits[exit].orientation == 2) {
-                                    setShowLineN((b) => !b)
-                                    break
-                                }
-                            }
-                        }
-                    }
                 }
             }
 
             setPreviousPos(sessionContext.playerPos)
-            setIsActive(sessionContext.playerPos.row == row && sessionContext.playerPos.col == col)
+            setIsLeaving(sessionContext.playerPos.row == row && sessionContext.playerPos.col == col)
         }, [sessionContext.playerPos])
 
         useEffect(() => {
             setLineCache(lc => {
-                lc[oldStack] = { w: showLineW, s: showLineS, e: showLineE, n: showLineN }
+                lc[stack] = { w: showLineW, s: showLineS, e: showLineE, n: showLineN }
                 return lc
             })
         }, [showLineW, showLineS, showLineE, showLineN])
 
         useEffect(() => {
-            setTimeout(() => {
-                const stack = sessionContext.blockStack.join(".")
-                setShowLineW(lineCache[stack] ? lineCache[stack].w : false)
-                setShowLineS(lineCache[stack] ? lineCache[stack].s : false)
-                setShowLineE(lineCache[stack] ? lineCache[stack].e : false)
-                setShowLineN(lineCache[stack] ? lineCache[stack].n : false)
-                setOldStack(stack)
-                if (sessionContext.playerPos.row == row && sessionContext.playerPos.col == col) {
-                    const playerRow = previousPos.row
-                    const playerCol = previousPos.col
-                    if (mazeData.links[playerRow] && mazeData.links[playerRow][playerCol]) {
-                        for (const { exit } of mazeData.links[playerRow][playerCol]) {
-                            if (mazeData.exits[exit]) {
-                                const exitRow = mazeData.exits[exit].row
-                                const exitCol = mazeData.exits[exit].col
-                                if (exitRow == row && exitCol == col) {
-                                    if (mazeData.exits[exit].orientation == 1) {
-                                        setShowLineW((b) => !b)
-                                        break
-                                    }
-                                    else if (mazeData.exits[exit].orientation == 2) {
-                                        setShowLineS((b) => !b)
-                                        break
-                                    }
-                                    else if (mazeData.exits[exit].orientation == 4) {
-                                        setShowLineE((b) => !b)
-                                        break
-                                    }
-                                    else if (mazeData.exits[exit].orientation == 8) {
-                                        setShowLineN((b) => !b)
-                                        break
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    if (mazeData.links[row] && mazeData.links[row][col]) {
-                        for (const { exit } of mazeData.links[row][col]) {
-                            if (mazeData.exits[exit]) {
-                                const exitRow = mazeData.exits[exit].row
-                                const exitCol = mazeData.exits[exit].col
-                                if (exitRow == playerRow && exitCol == playerCol) {
-                                    if (mazeData.exits[exit].orientation == 4) {
-                                        setShowLineW((b) => !b)
-                                        break
-                                    }
-                                    else if (mazeData.exits[exit].orientation == 8) {
-                                        setShowLineS((b) => !b)
-                                        break
-                                    }
-                                    else if (mazeData.exits[exit].orientation == 1) {
-                                        setShowLineE((b) => !b)
-                                        break
-                                    }
-                                    else if (mazeData.exits[exit].orientation == 2) {
-                                        setShowLineN((b) => !b)
-                                        break
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }, 100);
+            const newStack = sessionContext.blockStack.join(".")
+            setShowLineW(lineCache[newStack] ? lineCache[newStack].w : false)
+            setShowLineS(lineCache[newStack] ? lineCache[newStack].s : false)
+            setShowLineE(lineCache[newStack] ? lineCache[newStack].e : false)
+            setShowLineN(lineCache[newStack] ? lineCache[newStack].n : false)
+            setStack(newStack)
         }, [sessionContext.blockStack])
 
         return (
             <div style={{
                 position: "absolute", marginLeft: (col + 1 / 4) * mazeData.tile_size, marginTop: (row + 1 / 4) * mazeData.tile_size, background: mazeData.background_color, width: mazeData.tile_size, height: mazeData.tile_size
             }}>
-                {defaultPathW !== null && defaultPathW}
-                {defaultPathS !== null && defaultPathS}
-                {defaultPathE !== null && defaultPathE}
-                {defaultPathN !== null && defaultPathN}
+                {defaultPathW}
+                {defaultPathS}
+                {defaultPathE}
+                {defaultPathN}
 
-                {((type | teleporters.signature | links | exits) & 15) != 0 && central_path}
+                {(type | teleporters.signature | links | exits) != 0 && central_path}
 
                 {(isStartingPosition || isTrophy) && roundTile}
 
