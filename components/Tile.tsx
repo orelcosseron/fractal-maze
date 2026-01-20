@@ -2,27 +2,15 @@ import { useContext, useEffect, useState } from "react"
 import { MazeContext } from "./context/mazeContext";
 import { SessionContext } from "./context/sessionContext";
 
-export default function Tile({ row, col }: { row: number, col: number }) {
+export default function Tile({ row, col, stack = [] }: { row: number, col: number, stack?: string[] }) {
     const mazeData = useContext(MazeContext);
     const sessionContext = useContext(SessionContext)
 
     if (mazeData && sessionContext) {
 
         const [isLeaving, setIsLeaving] = useState(false);
-        const [previousPos, setPreviousPos] = useState({ row: 0, col: 0 });
 
-        const [showLineW, setShowLineW] = useState(false);
-        const [showLineS, setShowLineS] = useState(false);
-        const [showLineE, setShowLineE] = useState(false);
-        const [showLineN, setShowLineN] = useState(false);
-
-        const [stack, setStack] = useState("0");
-        const [lineCache, setLineCache] = useState<NodeJS.Dict<{ w: boolean, s: boolean, e: boolean, n: boolean }>>({});
-
-        useEffect(() => {
-            setStack("0")
-            setLineCache({ "0": { w: false, s: false, e: false, n: false } })
-        }, [mazeData])
+        const [stackInternal, setStackInternal] = useState(stack.length > 0 ? "0." + stack.join(".") : "0");
 
         const type = parseInt(mazeData.rows[row].slice(2 * col, 2 * col + 2))
 
@@ -49,8 +37,8 @@ export default function Tile({ row, col }: { row: number, col: number }) {
 
         let exits = 0
         for (const [exitName, exit] of Object.entries(mazeData.exits)) {
-            const stackLength = sessionContext.blockStack.length
-            const currentBlock = sessionContext.blockStack[stackLength - 1]
+            const stackLength = sessionContext.blockStack.length + stack.length
+            const currentBlock = stack.length > 0 ? stack[stack.length - 1] : sessionContext.blockStack[sessionContext.blockStack.length - 1]
             if ((stackLength == 1 && mazeData.trophies.length == 0 || stackLength > 1 && mazeData.blocks[currentBlock] && mazeData.blocks[currentBlock].exits[exitName]) && exit && exit.row == row && exit.col == col) {
                 exits |= exit.orientation
             }
@@ -132,41 +120,47 @@ export default function Tile({ row, col }: { row: number, col: number }) {
         const defaultPathN = (type & 8) != 0 ? pathN : (teleporters.signature & 8) != 0 ? teleporterN : (links & 8) != 0 ? linkN : (exits & 8) != 0 ? exitN : null
 
         useEffect(() => {
-            if (isLeaving || (sessionContext.playerPos.row == row && sessionContext.playerPos.col == col)) {
-                const playerRow = isLeaving ? sessionContext.playerPos.row : previousPos.row
-                const playerCol = isLeaving ? sessionContext.playerPos.col : previousPos.col
+            if (stack.length == 0 && (isLeaving || (sessionContext.playerPos.row == row && sessionContext.playerPos.col == col))) {
+                if (sessionContext.playerPos.row == row && sessionContext.playerPos.col == col && isTrophy && sessionContext.blockStack.length == 1) {
+                    sessionContext.setIsWin(true)
+                    return
+                }
+
+                let scl = sessionContext.lines
+                if (!scl[stackInternal]) {
+                    scl[stackInternal] = {}
+                }
+                if (!scl[stackInternal][row]) {
+                    scl[stackInternal][row] = {}
+                }
+                if (!scl[stackInternal][row][col]) {
+                    scl[stackInternal][row][col] = { w: false, s: false, e: false, n: false }
+                }
+
+                const playerRow = isLeaving ? sessionContext.playerPos.row : sessionContext.prevPlayerPos.row
+                const playerCol = isLeaving ? sessionContext.playerPos.col : sessionContext.prevPlayerPos.col
                 if (playerRow - row == 0 && playerCol - col < 0) {
-                    setShowLineW((b) => !b)
+                    scl[stackInternal][row][col].w = !scl[stackInternal][row][col].w
+                    sessionContext.setLines(scl)
                 }
                 else if (playerRow - row > 0 && playerCol - col == 0) {
-                    setShowLineS((b) => !b)
+                    scl[stackInternal][row][col].s = !scl[stackInternal][row][col].s
+                    sessionContext.setLines(scl)
                 }
                 else if (playerRow - row == 0 && playerCol - col > 0) {
-                    setShowLineE((b) => !b)
+                    scl[stackInternal][row][col].e = !scl[stackInternal][row][col].e
+                    sessionContext.setLines(scl)
                 }
                 else if (playerRow - row < 0 && playerCol - col == 0) {
-                    setShowLineN((b) => !b)
+                    scl[stackInternal][row][col].n = !scl[stackInternal][row][col].n
+                    sessionContext.setLines(scl)
                 }
             }
-
-            setPreviousPos(sessionContext.playerPos)
             setIsLeaving(sessionContext.playerPos.row == row && sessionContext.playerPos.col == col)
         }, [sessionContext.playerPos])
 
         useEffect(() => {
-            setLineCache(lc => {
-                lc[stack] = { w: showLineW, s: showLineS, e: showLineE, n: showLineN }
-                return lc
-            })
-        }, [showLineW, showLineS, showLineE, showLineN])
-
-        useEffect(() => {
-            const newStack = sessionContext.blockStack.join(".")
-            setShowLineW(lineCache[newStack] ? lineCache[newStack].w : false)
-            setShowLineS(lineCache[newStack] ? lineCache[newStack].s : false)
-            setShowLineE(lineCache[newStack] ? lineCache[newStack].e : false)
-            setShowLineN(lineCache[newStack] ? lineCache[newStack].n : false)
-            setStack(newStack)
+            setStackInternal(sessionContext.blockStack.concat(stack).join("."))
         }, [sessionContext.blockStack])
 
         return (
@@ -182,10 +176,10 @@ export default function Tile({ row, col }: { row: number, col: number }) {
 
                 {(isStartingPosition || isTrophy) && roundTile}
 
-                {showLineW && defaultLineW}
-                {showLineS && defaultLineS}
-                {showLineE && defaultLineE}
-                {showLineN && defaultLineN}
+                {sessionContext.lines[stackInternal] && sessionContext.lines[stackInternal][row] && sessionContext.lines[stackInternal][row][col] && sessionContext.lines[stackInternal][row][col].w && defaultLineW}
+                {sessionContext.lines[stackInternal] && sessionContext.lines[stackInternal][row] && sessionContext.lines[stackInternal][row][col] && sessionContext.lines[stackInternal][row][col].s && defaultLineS}
+                {sessionContext.lines[stackInternal] && sessionContext.lines[stackInternal][row] && sessionContext.lines[stackInternal][row][col] && sessionContext.lines[stackInternal][row][col].e && defaultLineE}
+                {sessionContext.lines[stackInternal] && sessionContext.lines[stackInternal][row] && sessionContext.lines[stackInternal][row][col] && sessionContext.lines[stackInternal][row][col].n && defaultLineN}
             </div >
         )
     }

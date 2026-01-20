@@ -11,8 +11,10 @@ export default function Home() {
 
   const [blockStack, setBlockStack] = useState(["0"])
   const [playerPos, setPlayerPos] = useState({ row: 0, col: 0 })
+  const [prevPlayerPos, setPrevPlayerPos] = useState({ row: 0, col: 0 })
+  const [lines, setLines] = useState({})
   const [isWin, setIsWin] = useState(false)
-  const sessionContext = { blockStack: blockStack, setBlockStack: setBlockStack, playerPos: playerPos, setPlayerPos: setPlayerPos, isWin: isWin, setIsWin: setIsWin }
+  const sessionContext = { blockStack: blockStack, setBlockStack: setBlockStack, playerPos: playerPos, setPlayerPos: setPlayerPos, prevPlayerPos: prevPlayerPos, setPrevPlayerPos: setPrevPlayerPos, lines: lines, setLines: setLines, isWin: isWin, setIsWin: setIsWin }
 
   return (
     <>

@@ -14,7 +14,9 @@ export default function Player() {
 
         useEffect(() => {
             sessionContext.setPlayerPos({ row: mazeData.player.row, col: mazeData.player.col })
+            sessionContext.setPrevPlayerPos({ row: mazeData.player.row, col: mazeData.player.col })
             sessionContext.setBlockStack(["0"])
+            sessionContext.setLines({})
             sessionContext.setIsWin(false)
         }, [mazeData]);
 
@@ -56,6 +58,7 @@ export default function Player() {
                         for (const [directionKey, direction] of Object.entries(directions)) {
                             if (e.key == directionKey && currentTile & direction.orientation) {
                                 setActivity({ isActive: true, transition: "transform 0.1s linear", visibility: "visible" })
+                                sessionContext.setPrevPlayerPos(sessionContext.playerPos)
                                 sessionContext.setPlayerPos((prevPlayer) => { return { row: prevPlayer.row + direction.rowOffset, col: prevPlayer.col + direction.colOffset } })
                                 setTimeout(() => {
                                     setActivity({ isActive: false, transition: "", visibility: "visible" })
@@ -73,15 +76,20 @@ export default function Player() {
                                     if (mazeData.teleporters[playerRow] && mazeData.teleporters[playerRow][playerCol] && mazeData.teleporters[playerRow][playerCol].reach[orientation]) {
                                         const reach = mazeData.teleporters[playerRow][playerCol].reach[orientation]
                                         setActivity({ isActive: true, transition: "transform 0.075s linear", visibility: "visible" })
+                                        sessionContext.setPrevPlayerPos(sessionContext.playerPos)
                                         sessionContext.setPlayerPos((prevPlayer) => {
                                             return { row: prevPlayer.row + direction.rowOffset * 0.75, col: prevPlayer.col + direction.colOffset * 0.75 }
                                         })
                                         setTimeout(() => {
                                             setActivity({ isActive: true, transition: "", visibility: "hidden" })
+                                            sessionContext.setPrevPlayerPos((prevPlayer) => {
+                                                return { row: prevPlayer.row + direction.rowOffset * 0.75, col: prevPlayer.col + direction.colOffset * 0.75 }
+                                            })
                                             sessionContext.setPlayerPos({ row: playerRow + direction.rowOffset * (reach - 0.75), col: playerCol + direction.colOffset * (reach - 0.75) })
                                         }, 75);
                                         setTimeout(() => {
                                             setActivity({ isActive: true, transition: "transform 0.075s linear", visibility: "visible" })
+                                            sessionContext.setPrevPlayerPos({ row: playerRow + direction.rowOffset * (reach - 0.75), col: playerCol + direction.colOffset * (reach - 0.75) })
                                             sessionContext.setPlayerPos({ row: playerRow + direction.rowOffset * reach, col: playerCol + direction.colOffset * reach })
                                         }, 100 * reach - 75);
                                         setTimeout(() => {
@@ -100,11 +108,15 @@ export default function Player() {
                                 for (const [directionKey, direction] of Object.entries(directions)) {
                                     if (e.key == directionKey && exit && exit.orientation == (direction.orientation * 4) % 15) {
                                         setActivity({ isActive: true, transition: "transform 0.075s linear", visibility: "visible" })
+                                        sessionContext.setPrevPlayerPos(sessionContext.playerPos)
                                         sessionContext.setPlayerPos((prevPlayer) => {
                                             return { row: prevPlayer.row + direction.rowOffset * 0.75, col: prevPlayer.col + direction.colOffset * 0.75 }
                                         })
                                         setTimeout(() => {
                                             setActivity({ isActive: true, transition: "", visibility: "hidden" })
+                                            sessionContext.setPrevPlayerPos((prevPlayer) => {
+                                                return { row: prevPlayer.row + direction.rowOffset * 0.75, col: prevPlayer.col + direction.colOffset * 0.75 }
+                                            })
                                             sessionContext.setPlayerPos({ row: exit.row - direction.rowOffset * 0.75, col: exit.col - direction.colOffset * 0.75 })
                                         }, 75);
                                         setTimeout(() => {
@@ -112,11 +124,12 @@ export default function Player() {
                                         }, 100);
                                         setTimeout(() => {
                                             setActivity({ isActive: true, transition: "transform 0.075s linear", visibility: "visible" })
+                                            sessionContext.setPrevPlayerPos({ row: exit.row - direction.rowOffset * 0.75, col: exit.col - direction.colOffset * 0.75 })
                                             sessionContext.setPlayerPos({ row: exit.row, col: exit.col })
-                                        }, 125);
+                                        }, 475);
                                         setTimeout(() => {
                                             setActivity({ isActive: false, transition: "", visibility: "visible" })
-                                        }, 200);
+                                        }, 550);
                                         return
                                     }
                                 }
@@ -133,11 +146,15 @@ export default function Player() {
                                     for (const [directionKey, direction] of Object.entries(directions)) {
                                         if (e.key == directionKey && exit.orientation == direction.orientation) {
                                             setActivity({ isActive: true, transition: "transform 0.075s linear", visibility: "visible" })
+                                            sessionContext.setPrevPlayerPos(sessionContext.prevPlayerPos)
                                             sessionContext.setPlayerPos((prevPlayer) => {
                                                 return { row: prevPlayer.row + direction.rowOffset * 0.75, col: prevPlayer.col + direction.colOffset * 0.75 }
                                             })
                                             setTimeout(() => {
                                                 setActivity({ isActive: true, transition: "", visibility: "hidden" })
+                                                sessionContext.setPrevPlayerPos((prevPlayer) => {
+                                                    return { row: prevPlayer.row + direction.rowOffset * 0.75, col: prevPlayer.col + direction.colOffset * 0.75 }
+                                                })
                                                 sessionContext.setPlayerPos({ row: currentExit.row - direction.rowOffset * 0.75, col: currentExit.col - direction.colOffset * 0.75 })
                                             }, 75);
                                             setTimeout(() => {
@@ -145,11 +162,12 @@ export default function Player() {
                                             }, 100);
                                             setTimeout(() => {
                                                 setActivity({ isActive: true, transition: "transform 0.075s linear", visibility: "visible" })
+                                                sessionContext.setPrevPlayerPos({ row: currentExit.row - direction.rowOffset * 0.75, col: currentExit.col - direction.colOffset * 0.75 })
                                                 sessionContext.setPlayerPos({ row: currentExit.row, col: currentExit.col })
-                                            }, 125);
+                                            }, 475);
                                             setTimeout(() => {
                                                 setActivity({ isActive: false, transition: "", visibility: "visible" })
-                                            }, 200);
+                                            }, 550);
                                             break exit_loop
                                         }
                                     }
@@ -158,6 +176,7 @@ export default function Player() {
                                     for (const [directionKey, direction] of Object.entries(directions)) {
                                         if (e.key == directionKey && exit.orientation == direction.orientation) {
                                             setActivity({ isActive: true, transition: "transform 0.1s linear", visibility: "visible" })
+                                            sessionContext.setPrevPlayerPos(sessionContext.playerPos)
                                             sessionContext.setPlayerPos((prevPlayer) => { return { row: prevPlayer.row + direction.rowOffset, col: prevPlayer.col + direction.colOffset } })
                                             setTimeout(() => {
                                                 setActivity({ isActive: false, transition: "", visibility: "visible" })
