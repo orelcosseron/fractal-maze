@@ -7,8 +7,8 @@ export default function MazeToJSON(name: string) {
         let path_color: string = "white"
         let line_color: string = "white"
         let teleporters: NodeJS.Dict<NodeJS.Dict<{ signature: number, reach: NodeJS.Dict<number> }>> = {}
-        let blocks: NodeJS.Dict<{ row: number, col: number, width: number, height: number, color: string, exits: NodeJS.Dict<{ row: number, col: number }> }> = {}
-        let links: NodeJS.Dict<NodeJS.Dict<Array<{ block: string, exit: string }>>> = {}
+        let blocks: NodeJS.Dict<{ row: number, col: number, width: number, height: number, color: string, exits: NodeJS.Dict<{ row: number, col: number, path: string[] }> }> = {}
+        let links: NodeJS.Dict<NodeJS.Dict<Array<{ block: string[], exit: string }>>> = {}
         let exits: NodeJS.Dict<{ orientation: number, row: number, col: number }> = {}
         let player: { row: number, col: number, color: string } = { row: 0, col: 0, color: "" }
         let trophies: Array<{ row: number, col: number, color: string }> = []
@@ -73,24 +73,24 @@ export default function MazeToJSON(name: string) {
             if (line.slice(0, 4) == "LINK") {
                 const link = line.split(" ")
 
+                const blockPath = link[1].split("+")
+
                 const row = parseInt(link[3])
                 const col = parseInt(link[4])
-                if (!(row in links)) {
+                if (!links[row]) {
                     links[row] = {}
                 }
 
-                if (links[row] && !(col in links[row])) {
+                if (!links[row][col]) {
                     links[row][col] = []
                 }
 
-                if (links[row] && links[row][col]) {
-                    links[row][col].push({ block: link[1], exit: link[2] })
-                    const name = link[1]
-                    if (blocks[name]) {
-                        blocks[name].exits[link[2]] = { row: row, col: col }
-                    }
-                    continue
+                links[row][col].push({ block: blockPath, exit: link[2] })
+                const blockName = blockPath[blockPath.length - 1]
+                if (blocks[blockName]) {
+                    blocks[blockName].exits[link[2]] = { row: row, col: col, path: blockPath }
                 }
+                continue
             }
 
             if (line.slice(0, 4) == "EXIT") {

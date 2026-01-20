@@ -8,6 +8,11 @@ export default function Tile({ row, col, stack = [] }: { row: number, col: numbe
 
     if (mazeData && sessionContext) {
 
+        const checkPath = (path: string[]) => {
+            const pathInternal = stackInternal.split(".")
+            return path.reduce((acc, block, i) => { return acc && block == pathInternal[pathInternal.length - path.length + i] }, true)
+        }
+
         const [isLeaving, setIsLeaving] = useState(false);
 
         const [stackInternal, setStackInternal] = useState(stack.length > 0 ? "0." + stack.join(".") : "0");
@@ -39,7 +44,7 @@ export default function Tile({ row, col, stack = [] }: { row: number, col: numbe
         for (const [exitName, exit] of Object.entries(mazeData.exits)) {
             const stackLength = sessionContext.blockStack.length + stack.length
             const currentBlock = stack.length > 0 ? stack[stack.length - 1] : sessionContext.blockStack[sessionContext.blockStack.length - 1]
-            if ((stackLength == 1 && mazeData.trophies.length == 0 || stackLength > 1 && mazeData.blocks[currentBlock] && mazeData.blocks[currentBlock].exits[exitName]) && exit && exit.row == row && exit.col == col) {
+            if ((stackLength == 1 && mazeData.trophies.length == 0 || stackLength > 1 && mazeData.blocks[currentBlock] && mazeData.blocks[currentBlock].exits[exitName] && checkPath(mazeData.blocks[currentBlock].exits[exitName].path)) && exit && exit.row == row && exit.col == col) {
                 exits |= exit.orientation
             }
         }

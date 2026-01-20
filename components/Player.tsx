@@ -120,16 +120,16 @@ export default function Player() {
                                             sessionContext.setPlayerPos({ row: exit.row - direction.rowOffset * 0.75, col: exit.col - direction.colOffset * 0.75 })
                                         }, 75);
                                         setTimeout(() => {
-                                            sessionContext.setBlockStack(bs => { return [...bs, link.block] })
+                                            link.block.forEach((block, i) => setTimeout(() => sessionContext.setBlockStack(bs => [...bs, block]), 350 * i))
                                         }, 100);
                                         setTimeout(() => {
                                             setActivity({ isActive: true, transition: "transform 0.075s linear", visibility: "visible" })
                                             sessionContext.setPrevPlayerPos({ row: exit.row - direction.rowOffset * 0.75, col: exit.col - direction.colOffset * 0.75 })
                                             sessionContext.setPlayerPos({ row: exit.row, col: exit.col })
-                                        }, 475);
+                                        }, 125 + 350 * link.block.length);
                                         setTimeout(() => {
                                             setActivity({ isActive: false, transition: "", visibility: "visible" })
-                                        }, 550);
+                                        }, 200 + 350 * link.block.length);
                                         return
                                     }
                                 }
@@ -141,7 +141,7 @@ export default function Player() {
                         exit_loop:
                         for (const [exitName, exit] of Object.entries(mazeData.exits)) {
                             if (exit && exit.row == sessionContext.playerPos.row && exit.col == sessionContext.playerPos.col) {
-                                if (currentBlock && currentBlock.exits[exitName]) {
+                                if (currentBlock && currentBlock.exits[exitName] && currentBlock.exits[exitName].path.reduce((acc, block, i) => { return acc && block == sessionContext.blockStack[sessionContext.blockStack.length - currentBlock.exits[exitName]!.path.length + i] }, true)) {
                                     const currentExit = currentBlock.exits[exitName]
                                     for (const [directionKey, direction] of Object.entries(directions)) {
                                         if (e.key == directionKey && exit.orientation == direction.orientation) {
@@ -158,16 +158,16 @@ export default function Player() {
                                                 sessionContext.setPlayerPos({ row: currentExit.row - direction.rowOffset * 0.75, col: currentExit.col - direction.colOffset * 0.75 })
                                             }, 75);
                                             setTimeout(() => {
-                                                sessionContext.setBlockStack(bs => { return bs.slice(0, -1) })
+                                                currentExit.path.forEach((_, i) => setTimeout(() => sessionContext.setBlockStack(bs => { return bs.slice(0, -1) }), 350 * i))
                                             }, 100);
                                             setTimeout(() => {
                                                 setActivity({ isActive: true, transition: "transform 0.075s linear", visibility: "visible" })
                                                 sessionContext.setPrevPlayerPos({ row: currentExit.row - direction.rowOffset * 0.75, col: currentExit.col - direction.colOffset * 0.75 })
                                                 sessionContext.setPlayerPos({ row: currentExit.row, col: currentExit.col })
-                                            }, 475);
+                                            }, 125 + 350 * currentExit.path.length);
                                             setTimeout(() => {
                                                 setActivity({ isActive: false, transition: "", visibility: "visible" })
-                                            }, 550);
+                                            }, 200 + 350 * currentExit.path.length);
                                             break exit_loop
                                         }
                                     }
