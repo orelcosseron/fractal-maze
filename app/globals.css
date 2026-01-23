@@ -18,18 +18,14 @@ body {
   font-size: 18px;
 }
 
-#reset_button:enabled {
+#pad_button {
   background-color: black;
   color: white;
   margin: auto;
-  display: block;
-  margin-top: 5px;
-}
-
-#reset_button:disabled {
-  background-color: var(--background);
-  color: var(--background);
-  border: 0px
+  aspect-ratio: 1/1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 #hud {
@@ -50,6 +46,18 @@ body {
 }
 
 .tile_row {
+  display: flex;
+  flex-direction: row;
+}
+
+.pad {
+  margin-top: 5px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.pad_middle_row {
   display: flex;
   flex-direction: row;
 }
