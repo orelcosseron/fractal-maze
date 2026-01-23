@@ -32,7 +32,6 @@ export default function Home() {
         <MazeContext value={mazeData}>
           <Hud>
             {mazeData && <Maze />}
-            {/* <button id="reset_button">Reset</button> */}
           </Hud>
         </MazeContext>
       </SessionContext>

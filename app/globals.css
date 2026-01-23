@@ -21,8 +21,9 @@ body {
 #reset_button:enabled {
   background-color: black;
   color: white;
-  margin-left: 50%;
-  margin-right: 50%
+  margin: auto;
+  display: block;
+  margin-top: 5px;
 }
 
 #reset_button:disabled {
