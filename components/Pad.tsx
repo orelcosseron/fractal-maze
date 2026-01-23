@@ -23,8 +23,10 @@ export default function Pad() {
             sessionContext.blockStack.forEach((_, i) => { setTimeout(() => { sessionContext.setBlockStack(bs => { if (bs.length > 1) { return bs.slice(0, -1) } else { return bs } }) }, 350 * i) })
             sessionContext.setPlayerPos({ row: mazeData.player.row, col: mazeData.player.col })
             sessionContext.setPrevPlayerPos({ row: mazeData.player.row, col: mazeData.player.col })
-            sessionContext.setLines({})
-            sessionContext.setIsWin(false)
+            setTimeout(() => {
+                sessionContext.setLines({})
+                sessionContext.setIsWin(false)
+            }, 350 * sessionContext.blockStack.length + 50)
         }
         return (
             <div className="pad">
