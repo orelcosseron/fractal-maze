@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef, ChangeEvent } from 'react'
 
 export default function MazeSelector({ onChange }: { onChange: (name: string) => void }) {
     const [mazeList, setMazeList] = useState([])
@@ -15,9 +15,16 @@ export default function MazeSelector({ onChange }: { onChange: (name: string) =>
         }
     }, [mazeList])
 
+    const selectRef = useRef<HTMLSelectElement>(null);
+
+    function handleFocus(e: ChangeEvent<HTMLSelectElement>) {
+        onChange(e.target.value)
+        selectRef.current!.blur();
+    }
+
     return (
         <section>
-            <select name="level_select" id="level_select" onChange={(e) => onChange(e.target.value)}>
+            <select ref={selectRef} name="level_select" id="level_select" onChange={handleFocus}>
                 {mazeList.map((level) => (
                     <option key={level} value={level}>{level}</option>
                 ))}
